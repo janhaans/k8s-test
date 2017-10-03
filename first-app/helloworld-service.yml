@@ -7,5 +7,5 @@ spec:
   selector:
     app: helloworld
   ports:
-  - ports: 3000
+  - port: 3000
     nodePort: 30443
