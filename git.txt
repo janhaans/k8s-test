@@ -1,0 +1,15 @@
+﻿Create new git repository
+$ mkdir k8s-test
+$ cd k8s-test
+$ git init
+$ git config --global user.email "jan.haans@gmail.com"
+$ git config --global user.name "Jan Haans"
+
+Commit change to git repository
+$ git add .
+$ git commit -m "<message>"
+
+Create in github new repository k8s-test
+Push git repository to github:
+$ git remote add origin https://github.com/janhaans/k8s-test.git
+$ git push -u origin master

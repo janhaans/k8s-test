@@ -1,0 +1,72 @@
+﻿Create pod manifest: ~/k8s-test/pod-service_nodeport/helloworld-pod.yml:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: helloworld-pod
+  labels:
+    app: helloworld
+spec:
+  containers:
+  - name: helloworld.container
+    image: wardviaene/k8s-demo
+    ports:
+    - containerPort: 3000
+
+Create in Google cloud a kubernetes cluster (see Kubernetes Up and Running for the preparation)
+$ gcloud container clusters create k8s-test
+
+Check kubernetes cluster k8s-test
+$ kubectl get node
+$ kubectl get pod --all-namespace
+$ kubectl get componentstatuses
+
+Deploy helloworld.pod
+$ kubectl apply -f ~/k8s-test/pod-service_nodeport/helloworld-pod.yml
+
+Check installed helloworld-pod
+$ kubectl get pod
+$ kubectl describe pod helloworld-pod
+
+Get access to helloworld pod without service (http://localhost:8080)
+$ kubectl port-forward helloworld-pod 8080:3000
+
+Get access to helloworld pod with service
+Create service manifest: ~/k8s-test/pod-service_nodeport/helloworld-service.yml:
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloworld-service
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    nodePort: 30443
+  selector:
+    app: helloworld
+
+Open Kubernetes nodes for port 30443
+$ gcloud compute firewall-rules create helloworld --allow tcp:30443
+
+Deploy helloworld-service 
+$ kubectl apply -f ./pod-service_nodeport/helloworld-service.yml
+
+Check helloworld-service
+$ kubectl get service
+$ kubectl describe service helloworld-service
+Find IP address of a cluster node:
+$ kubectl get node -o wide
+
+Get access to helloworld.pod with service helloworld-service (curl <IP node>:<Port helloworld-service>)
+$ curl 35.187.67.145:30344
+
+List Google Cloud firewall rules
+$ gcloud compute firewall-rules list
+
+Delete firewall rule helloworld
+$ gcloud compute firewall-rules delete helloworld
+
+Check you have no access to helloworld-service
+$ curl 35.187.67.145:30443
+
+Delete kubernetes cluster
+$ gcloud container clusters delete k8s-test
